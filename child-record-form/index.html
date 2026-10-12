@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Child Record Form</title>
+<!--
+  Typography: the Global Visual Style Guide (v1.1, section 2.4) approves McKay (serif) and Zoram (sans serif).
+  Both are licensed Church fonts and are not on public web font services, so they are listed first
+  (used if installed) and the closest open fonts follow: Libre Baskerville for McKay, Open Sans for Zoram.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Colors from the style guide, section 2.5 (hex values from the print palette's RGB mixes) */
+  --black: #000000;      /* Black: "use for text" */
+  --gray-5: #E0E2E2;
+  --gray-10: #D0D3D3;
+  --gray-30: #878A8C;
+  --gray-35: #676B6E;
+  --gray-40: #53575B;
+  --blue-5: #B0EEFC;
+  --blue-20: #01B6D1;
+  --blue-30: #006184;
+  --blue-35: #005175;
+  --red-5: #FDA1B2;
+  --red-25: #A6004E;
+  --white: #FFFFFF;
+
+  --serif: 'McKay', 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+  --sans: 'Zoram', 'Open Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Spacing: 8 px rhythm; 4-column fluid grid for phones (style guide, section 2.3.2) */
+  --margin: 20px;
+  --gutter: 16px;
+  --row: 20px;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.wrap { max-width: 560px; margin: 0 auto; padding: 0 var(--margin); }
+
+.hero {
+  margin: 0 calc(var(--margin) * -1) 24px;
+  padding: 40px var(--margin) 24px;
+  background: linear-gradient(180deg, rgba(176, 238, 252, 0.55), rgba(176, 238, 252, 0));
+}
+h1 { margin: 0; font-family: var(--serif); font-size: 32px; line-height: 1.2; font-weight: 400; }
+h2 { margin: 0; font-family: var(--serif); font-size: 22px; line-height: 1.25; font-weight: 400; }
+h2::after { content: ''; display: block; width: 40px; height: 3px; margin-top: 12px; background: var(--blue-20); }
+h3 { margin: 0; font-size: 13px; line-height: 1.4; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue-30); }
+.lede { margin: 12px 0 0; color: var(--gray-40); }
+
+/* 4-column grid: every block spans all 4 columns unless marked .half */
+.grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: var(--gutter); row-gap: var(--row); }
+.grid4 > * { grid-column: 1 / -1; }
+.grid4 > .half { grid-column: span 2; }
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--gray-10);
+  border-radius: 8px;
+  padding: 24px var(--margin);
+  margin-bottom: 24px;
+}
+.sub { border-top: 1px solid var(--gray-10); padding-top: var(--row); }
+
+.field { display: flex; flex-direction: column; gap: 8px; border: 0; padding: 0; margin: 0; min-width: 0; }
+.field > label, .field > legend, .lbl { padding: 0; font-size: 15px; font-weight: 600; line-height: 1.35; }
+.field > legend { margin-bottom: 8px; }
+.opt { font-weight: 400; color: var(--gray-40); }
+
+input[type="text"], input[type="date"], select {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 52px;
+  padding: 0 14px;
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--black);
+  background: var(--white);
+  border: 1.5px solid var(--gray-30);
+  border-radius: 8px;
+}
+input::placeholder { color: var(--gray-35); opacity: 1; }
+
+.radios { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gutter); }
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 14px;
+  background: var(--white);
+  border: 1.5px solid var(--gray-30);
+  border-radius: 8px;
+  font-weight: 400 !important;
+}
+.radio input { width: 22px; height: 22px; margin: 0; accent-color: var(--blue-30); }
+.radio:has(input:checked) { border-color: var(--blue-30); background: rgba(176, 238, 252, 0.35); }
+
+.invalid input[type="text"], .invalid input[type="date"], .invalid select, .invalid .radio, .invalid .sigbox { border-color: var(--red-25); }
+.err { margin: 0; font-size: 14px; font-weight: 600; color: var(--red-25); }
+:focus-visible { outline: 3px solid var(--blue-35); outline-offset: 2px; }
+a { color: var(--blue-30); }
+.note { margin: 0; color: var(--gray-40); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+.sighead { display: flex; justify-content: space-between; align-items: center; }
+.link {
+  min-height: 44px;
+  padding: 0 12px;
+  margin-right: -12px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--blue-30);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.sigbox {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 2px solid var(--gray-40);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--white);
+  background-image: repeating-conic-gradient(rgba(224, 226, 226, 0.7) 0% 25%, #ffffff 0% 50%);
+  background-size: 20px 20px;
+}
+.sigline { position: absolute; left: 8%; right: 8%; bottom: 22%; height: 2px; background: var(--gray-30); pointer-events: none; }
+.sigx { position: absolute; left: 8%; bottom: calc(22% + 4px); font-size: 24px; line-height: 1; color: var(--gray-30); pointer-events: none; }
+.sighint { position: absolute; left: 0; right: 0; top: 36%; text-align: center; color: var(--gray-35); font-size: 15px; pointer-events: none; }
+#sigCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.actions {
+  position: sticky;
+  bottom: 0;
+  margin: 0 calc(var(--margin) * -1);
+  padding: 24px var(--margin) calc(16px + env(safe-area-inset-bottom));
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--white) 30%);
+}
+.banner {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--red-25);
+  background: rgba(253, 161, 178, 0.25);
+  border: 1.5px solid var(--red-25);
+  border-radius: 8px;
+}
+.primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 56px;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--blue-30);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.primary:active { background: var(--blue-35); }
+.primary:disabled { opacity: 0.65; cursor: default; }
+.secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 28px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--blue-30);
+  background: transparent;
+  border: 2px solid var(--blue-30);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.done { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; text-align: center; padding-bottom: 32px; }
+.check { width: 96px; height: 96px; border-radius: 50%; background: var(--blue-30); display: flex; align-items: center; justify-content: center; }
+</style>
+</head>
+<body>
+
+<main class="wrap" id="formView">
+  <header class="hero">
+    <h1>Child Record Form</h1>
+  </header>
+
+  <form id="form" novalidate autocomplete="off">
+    <div class="hp" aria-hidden="true">
+      <label>Leave this blank <input type="text" id="website" tabindex="-1" autocomplete="off"></label>
+    </div>
+
+    <section class="card grid4">
+      <h2>Individual information</h2>
+
+      <div class="field" data-field="first">
+        <label for="first">Child’s first name</label>
+        <input id="first" type="text" autocomplete="off" autocapitalize="words">
+        <p class="err" hidden></p>
+      </div>
+      <div class="field" data-field="middle">
+        <label for="middle">Child’s middle name</label>
+        <input id="middle" type="text" autocomplete="off" autocapitalize="words">
+      </div>
+      <div class="field" data-field="last">
+        <label for="last">Child’s last name</label>
+        <input id="last" type="text" autocomplete="off" autocapitalize="words">
+        <p class="err" hidden></p>
+      </div>
+      <div class="field" data-field="suffix">
+        <label for="suffix">Suffix <span class="opt">(optional)</span></label>
+        <input id="suffix" type="text" placeholder="Jr., III" autocomplete="off">
+      </div>
+
+      <fieldset class="field" data-field="gender">
+        <legend>Gender</legend>
+        <div class="radios">
+          <label class="radio"><input type="radio" name="gender" value="Male">Male</label>
+          <label class="radio"><input type="radio" name="gender" value="Female">Female</label>
+        </div>
+        <p class="err" hidden></p>
+      </fieldset>
+
+      <div class="field" data-field="birthdate">
+        <label for="birthdate">Birth date</label>
+        <input id="birthdate" type="date">
+        <p class="err" hidden></p>
+      </div>
+      <div class="field" data-field="birthplace">
+        <label for="birthplace">Place of birth</label>
+        <input id="birthplace" type="text" placeholder="City, state or country" autocomplete="off">
+      </div>
+
+      <fieldset class="field" data-field="covenant">
+        <legend>Born in covenant</legend>
+        <div class="radios">
+          <label class="radio"><input type="radio" name="covenant" value="Yes">Yes</label>
+          <label class="radio"><input type="radio" name="covenant" value="No">No</label>
+        </div>
+      </fieldset>
+
+      <div class="field" data-field="street">
+        <label for="street">Street address</label>
+        <input id="street" type="text" autocomplete="off">
+      </div>
+      <div class="field" data-field="city">
+        <label for="city">City</label>
+        <input id="city" type="text" autocomplete="off">
+      </div>
+      <div class="field half" data-field="state">
+        <label for="state">State</label>
+        <input id="state" type="text" placeholder="UT" autocomplete="off" autocapitalize="characters">
+      </div>
+      <div class="field half" data-field="zip">
+        <label for="zip">ZIP code</label>
+        <input id="zip" type="text" inputmode="numeric" autocomplete="off">
+      </div>
+    </section>
+
+    <section class="card grid4">
+      <h2>Parents</h2>
+
+      <h3>Father</h3>
+      <div class="field" data-field="father">
+        <label for="father">Father’s name</label>
+        <input id="father" type="text" autocomplete="off" autocapitalize="words">
+      </div>
+      <div class="field" data-field="fatherRec">
+        <label for="fatherRec">Birth date or membership record number</label>
+        <input id="fatherRec" type="text" autocomplete="off">
+      </div>
+      <fieldset class="field" data-field="fatherMember">
+        <legend>Member</legend>
+        <div class="radios">
+          <label class="radio"><input type="radio" name="fatherMember" value="Yes">Yes</label>
+          <label class="radio"><input type="radio" name="fatherMember" value="No">No</label>
+        </div>
+      </fieldset>
+
+      <div class="sub grid4">
+        <h3>Mother</h3>
+        <div class="field" data-field="mother">
+          <label for="mother">Mother’s maiden name</label>
+          <input id="mother" type="text" autocomplete="off" autocapitalize="words">
+        </div>
+        <div class="field" data-field="motherRec">
+          <label for="motherRec">Birth date or membership record number</label>
+          <input id="motherRec" type="text" autocomplete="off">
+        </div>
+        <fieldset class="field" data-field="motherMember">
+          <legend>Member</legend>
+          <div class="radios">
+            <label class="radio"><input type="radio" name="motherMember" value="Yes">Yes</label>
+            <label class="radio"><input type="radio" name="motherMember" value="No">No</label>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="sub grid4">
+        <h3>Where the parents live</h3>
+        <div class="field" data-field="parentWard">
+          <label for="parentWard">Ward or branch <span class="opt">(if not Timpview 4th Ward)</span></label>
+          <input id="parentWard" type="text" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="sub grid4">
+        <h3>Child lives with someone else?</h3>
+        <div class="field" data-field="guardian">
+          <label for="guardian">Name of person the child lives with <span class="opt">(if other than parents)</span></label>
+          <input id="guardian" type="text" autocomplete="off" autocapitalize="words">
+        </div>
+        <div class="field" data-field="guardianRec">
+          <label for="guardianRec">Birth date or membership record number</label>
+          <input id="guardianRec" type="text" autocomplete="off">
+        </div>
+        <fieldset class="field" data-field="guardianMember">
+          <legend>Member</legend>
+          <div class="radios">
+            <label class="radio"><input type="radio" name="guardianMember" value="Yes">Yes</label>
+            <label class="radio"><input type="radio" name="guardianMember" value="No">No</label>
+          </div>
+        </fieldset>
+      </div>
+    </section>
+
+    <section class="card grid4">
+      <h2>Blessing information</h2>
+
+      <div class="field" data-field="blessDate">
+        <label for="blessDate">Blessing date</label>
+        <input id="blessDate" type="date">
+      </div>
+      <div class="field" data-field="blessBy">
+        <label for="blessBy">Name of person who performed the blessing</label>
+        <input id="blessBy" type="text" autocomplete="off" autocapitalize="words">
+      </div>
+      <div class="field" data-field="blessOffice">
+        <label for="blessOffice">Priesthood office</label>
+        <select id="blessOffice">
+          <option value="">Choose one</option>
+          <option>Elder</option>
+          <option>High Priest</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field" data-field="blessRec">
+        <label for="blessRec">Birth date or membership record number</label>
+        <input id="blessRec" type="text" autocomplete="off">
+      </div>
+    </section>
+
+    <section class="card grid4">
+      <h2>Consent and signature</h2>
+      <p class="note">By signing below, you confirm that you are the parent or legal guardian of this child, that you consent to a membership record being created for them, and that you have been made aware of the <a href="https://www.churchofjesuschrist.org/" target="_blank" rel="noopener">privacy notice</a>.</p>
+
+      <div class="field" data-field="signer">
+        <label for="signer">Parent or legal guardian’s printed name</label>
+        <input id="signer" type="text" autocomplete="off" autocapitalize="words">
+        <p class="err" hidden></p>
+      </div>
+
+      <div class="field" data-field="signature">
+        <div class="sighead">
+          <span class="lbl" id="sigLabel">Signature</span>
+          <button type="button" class="link" id="clearBtn">Clear</button>
+        </div>
+        <div class="sigbox" id="sigBox">
+          <div class="sigline"></div>
+          <div class="sigx" aria-hidden="true">×</div>
+          <div class="sighint" id="sigHint">Sign above the line</div>
+          <canvas id="sigCanvas" role="img" aria-labelledby="sigLabel"></canvas>
+        </div>
+        <p class="err" hidden></p>
+      </div>
+
+      <div class="field" data-field="signDate">
+        <label for="signDate">Date</label>
+        <input id="signDate" type="date">
+        <p class="err" hidden></p>
+      </div>
+    </section>
+
+    <div class="actions">
+      <div class="banner" id="banner" role="alert" hidden></div>
+      <button type="submit" class="primary" id="submitBtn">Submit</button>
+    </div>
+  </form>
+</main>
+
+<main class="wrap done" id="doneView" hidden>
+  <div class="check">
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M 11 25 L 20 34 L 38 14"/></svg>
+  </div>
+  <div>
+    <h1 id="doneTitle">Thank you!</h1>
+    <p class="lede">Your form was submitted.</p>
+  </div>
+  <button type="button" class="secondary" id="againBtn">Submit another form</button>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  // Paste the Apps Script web app URL (the one ending in /exec) between the quotes.
+  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbzWbhCL-dMz9U9Vt7cbHE22MpGmFUaw__A41WZSaSr4ThLyla_6gceaX3bnzhbopCD3_A/exec';
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  var TEXT_IDS = [
+    'first', 'middle', 'last', 'suffix', 'birthdate', 'birthplace', 'street', 'city', 'state', 'zip',
+    'father', 'fatherRec', 'mother', 'motherRec', 'parentWard',
+    'guardian', 'guardianRec', 'blessDate', 'blessBy', 'blessOffice', 'blessRec',
+    'signer', 'signDate', 'website'
+  ];
+  var RADIO_NAMES = ['gender', 'covenant', 'fatherMember', 'motherMember', 'guardianMember'];
+
+  // ---------- Signature pad ----------
+  var INK = '#000000';
+  var LINE_FRACTION = 0.011; // pen width as a fraction of the box width
+  var EXPORT_SCALE = 3;      // PNG pixels per on-screen pixel
+
+  var canvas = $('sigCanvas');
+  var ctx = canvas.getContext('2d');
+  var strokes = [];          // each stroke is a list of [x, y] points, both 0..1 of the box
+  var current = null;
+  var cssW = 0;
+  var cssH = 0;
+  var frame = 0;
+
+  function sizeCanvas() {
+    var r = canvas.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    var dpr = window.devicePixelRatio || 1;
+    cssW = r.width;
+    cssH = r.height;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    render();
+  }
+
+  function penWidth() { return Math.max(2, cssW * LINE_FRACTION); }
+
+  function drawStroke(c, pts, sx, sy, ox, oy) {
+    var P = pts.map(function (p) { return [p[0] * sx + ox, p[1] * sy + oy]; });
+    c.beginPath();
+    if (P.length === 1) {
+      c.arc(P[0][0], P[0][1], c.lineWidth / 2, 0, Math.PI * 2);
+      c.fill();
+      return;
+    }
+    c.moveTo(P[0][0], P[0][1]);
+    for (var i = 1; i < P.length - 1; i++) {
+      var mx = (P[i][0] + P[i + 1][0]) / 2;
+      var my = (P[i][1] + P[i + 1][1]) / 2;
+      c.quadraticCurveTo(P[i][0], P[i][1], mx, my);
+    }
+    c.lineTo(P[P.length - 1][0], P[P.length - 1][1]);
+    c.stroke();
+  }
+
+  function setInk(c, width) {
+    c.lineCap = 'round';
+    c.lineJoin = 'round';
+    c.strokeStyle = INK;
+    c.fillStyle = INK;
+    c.lineWidth = width;
+  }
+
+  function render() {
+    frame = 0;
+    ctx.clearRect(0, 0, cssW, cssH);
+    setInk(ctx, penWidth());
+    strokes.forEach(function (s) { drawStroke(ctx, s, cssW, cssH, 0, 0); });
+    $('sigHint').hidden = strokes.length > 0;
+  }
+
+  function schedule() {
+    if (!frame) frame = requestAnimationFrame(render);
+  }
+
+  function pointFrom(e) {
+    var r = canvas.getBoundingClientRect();
+    return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height];
+  }
+
+  canvas.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault();
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* not fatal */ }
+    current = [pointFrom(e)];
+    strokes.push(current);
+    clearError('signature');
+    schedule();
+  });
+
+  canvas.addEventListener('pointermove', function (e) {
+    if (!current) return;
+    e.preventDefault();
+    var events = (e.getCoalescedEvents && e.getCoalescedEvents()) || [];
+    if (!events.length) events = [e];
+    events.forEach(function (ev) { current.push(pointFrom(ev)); });
+    schedule();
+  });
+
+  function endStroke() { current = null; }
+  canvas.addEventListener('pointerup', endStroke);
+  canvas.addEventListener('pointercancel', endStroke);
+  canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+  $('clearBtn').addEventListener('click', function () {
+    strokes = [];
+    current = null;
+    render();
+  });
+
+  if (window.ResizeObserver) {
+    new ResizeObserver(sizeCanvas).observe($('sigBox'));
+  } else {
+    window.addEventListener('resize', sizeCanvas);
+  }
+
+  // Crops to the ink, keeps the background transparent, and renders at 3x for sharpness.
+  function exportPng() {
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    strokes.forEach(function (s) {
+      s.forEach(function (p) {
+        var x = p[0] * cssW, y = p[1] * cssH;
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      });
+    });
+    var lw = penWidth();
+    var margin = lw * 2 + 8;
+    var k = EXPORT_SCALE;
+    var out = document.createElement('canvas');
+    out.width = Math.max(1, Math.ceil((maxX - minX + 2 * margin) * k));
+    out.height = Math.max(1, Math.ceil((maxY - minY + 2 * margin) * k));
+    var oc = out.getContext('2d');
+    setInk(oc, lw * k);
+    strokes.forEach(function (s) {
+      drawStroke(oc, s, cssW * k, cssH * k, (margin - minX) * k, (margin - minY) * k);
+    });
+    return out.toDataURL('image/png');
+  }
+
+  // ---------- Validation ----------
+  function val(id) { return ($(id).value || '').trim(); }
+  function radio(name) {
+    var el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : '';
+  }
+
+  function fieldBox(name) { return document.querySelector('[data-field="' + name + '"]'); }
+
+  function setError(name, message) {
+    var box = fieldBox(name);
+    if (!box) return;
+    var err = box.querySelector('.err');
+    if (!err) return;
+    if (!err.id) err.id = 'err-' + name;
+    err.textContent = message || '';
+    err.hidden = !message;
+    box.classList.toggle('invalid', !!message);
+    Array.prototype.forEach.call(box.querySelectorAll('input, select'), function (el) {
+      if (message) {
+        el.setAttribute('aria-invalid', 'true');
+        el.setAttribute('aria-describedby', err.id);
+      } else {
+        el.removeAttribute('aria-invalid');
+        el.removeAttribute('aria-describedby');
+      }
+    });
+  }
+
+  function clearError(name) { setError(name, ''); }
+
+  // In page order, so the first failure is the first one the person sees.
+  var RULES = [
+    { name: 'first', message: 'Enter the child’s first name.', ok: function () { return !!val('first'); } },
+    { name: 'last', message: 'Enter the child’s last name.', ok: function () { return !!val('last'); } },
+    { name: 'gender', message: 'Choose a gender.', ok: function () { return !!radio('gender'); } },
+    { name: 'birthdate', message: 'Enter the child’s birth date.', ok: function () { return !!val('birthdate'); } },
+    { name: 'signer', message: 'Enter the parent or guardian’s name.', ok: function () { return !!val('signer'); } },
+    { name: 'signature', message: 'Please sign in the box.', ok: function () { return strokes.length > 0; } },
+    { name: 'signDate', message: 'Enter today’s date.', ok: function () { return !!val('signDate'); } }
+  ];
+
+  function validate() {
+    var first = null;
+    RULES.forEach(function (rule) {
+      var good = rule.ok();
+      setError(rule.name, good ? '' : rule.message);
+      if (!good && !first) first = rule.name;
+    });
+    if (first) {
+      var box = fieldBox(first);
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var focusable = box.querySelector('input, select');
+      if (focusable && first !== 'signature') focusable.focus({ preventScroll: true });
+    }
+    return !first;
+  }
+
+  $('form').addEventListener('input', function (e) {
+    var box = e.target.closest && e.target.closest('[data-field]');
+    if (box) clearError(box.getAttribute('data-field'));
+  });
+  $('form').addEventListener('change', function (e) {
+    var box = e.target.closest && e.target.closest('[data-field]');
+    if (box) clearError(box.getAttribute('data-field'));
+  });
+
+  // ---------- PDF: fill the official Child Record Form ----------
+  // The template PDF has no fillable fields, so text, check marks and the signature are placed at fixed
+  // positions. Coordinates are in PDF points measured from the TOP-left of the A4 page.
+  // ---- PDF fill (start)
+  var PDF_PAGE_HEIGHT = 841.889764;
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  function fmtDate(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    if (!m) return iso || '';
+    return parseInt(m[3], 10) + ' ' + MONTHS[parseInt(m[2], 10) - 1] + ' ' + m[1];
+  }
+
+  // Standard PDF fonts only cover Western European characters. Anything else becomes "?"
+  // instead of crashing the whole PDF.
+  function pdfSafe(font, text) {
+    var out = '';
+    Array.from(String(text || '').replace(/[\r\n\t]+/g, ' ')).forEach(function (ch) {
+      try { font.encodeText(ch); out += ch; } catch (err) { out += '?'; }
+    });
+    return out.replace(/\s+/g, ' ').trim();
+  }
+
+  async function fillChildRecordPdf(PDFLib, templateBase64, d, signaturePng) {
+    var doc = await PDFLib.PDFDocument.load(templateBase64);
+    var page = doc.getPages()[0];
+    var font = await doc.embedFont(PDFLib.StandardFonts.Helvetica);
+    var H = page.getHeight() || PDF_PAGE_HEIGHT;
+    var ink = PDFLib.rgb(0, 0, 0);
+
+    // Writes one line of text with its baseline at `base` (from the top of the page).
+    // Shrinks the text to fit `maxW`, then trims it if it still does not fit.
+    function text(x, base, value, maxW) {
+      var str = pdfSafe(font, value);
+      if (!str) return;
+      var size = 10;
+      while (size > 6.5 && font.widthOfTextAtSize(str, size) > maxW) size -= 0.5;
+      while (str.length > 1 && font.widthOfTextAtSize(str, size) > maxW) str = str.slice(0, -1);
+      page.drawText(str, { x: x, y: H - base, size: size, font: font, color: ink });
+    }
+
+    // Draws an X centred on a checkbox.
+    function check(cx, cy) {
+      var r = 3.2;
+      var y = H - cy;
+      page.drawLine({ start: { x: cx - r, y: y - r }, end: { x: cx + r, y: y + r }, thickness: 1.3, color: ink });
+      page.drawLine({ start: { x: cx - r, y: y + r }, end: { x: cx + r, y: y - r }, thickness: 1.3, color: ink });
+    }
+
+    function yesNo(value, yes, no) {
+      if (value === 'Yes') check(yes[0], yes[1]);
+      else if (value === 'No') check(no[0], no[1]);
+    }
+
+    // Individual information
+    var childName = [d.last, [d.first, d.middle].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+    if (d.suffix) childName += ', ' + d.suffix;
+    text(31, 138.0, childName, 398);
+    if (d.gender === 'Male') check(447.9, 132.7);
+    else if (d.gender === 'Female') check(501.4, 132.7);
+    text(31, 163.3, fmtDate(d.birthdate), 126);
+    text(165, 163.3, d.birthplace, 265);
+    yesNo(d.covenant, [447.9, 158.0], [496.4, 158.0]);
+    var address = [d.street, d.city, [d.state, d.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+    text(31, 188.9, address, 532);
+
+    // Parents
+    text(31, 241.8, d.father, 266);
+    yesNo(d.fatherMember, [314.8, 236.5], [363.3, 236.5]);
+    text(439, 241.8, d.fatherRec, 124);
+    text(31, 267.0, d.mother, 266);
+    yesNo(d.motherMember, [314.8, 261.7], [363.3, 261.7]);
+    text(439, 267.0, d.motherRec, 124);
+    text(31, 292.3, d.parentWard, 398);
+    text(31, 317.9, d.guardian, 266);
+    yesNo(d.guardianMember, [314.8, 312.2], [363.3, 312.2]);
+    text(439, 317.9, d.guardianRec, 124);
+
+    // Blessing information (ward and stake are already printed on the template)
+    text(31, 370.8, fmtDate(d.blessDate), 532);
+    text(31, 396.0, d.blessBy, 266);
+    text(303, 396.0, d.blessOffice, 127);
+    text(439, 396.0, d.blessRec, 124);
+
+    // Signature (image, scaled to fit beside the label) and date
+    if (signaturePng) {
+      var img = await doc.embedPng(signaturePng);
+      var box = { x: 182, top: 485.5, w: 246, h: 29 };
+      var scale = Math.min(box.w / img.width, box.h / img.height);
+      var w = img.width * scale;
+      var h = img.height * scale;
+      page.drawImage(img, { x: box.x, y: H - (box.top + box.h) + (box.h - h) / 2, width: w, height: h });
+    }
+    text(439, 509.4, fmtDate(d.signDate), 124);
+
+    return await doc.saveAsBase64();
+  }
+  // ---- PDF fill (end)
+
+  // The PDF library and the template load in the background while the person fills in the form.
+  var PDF_LIB_URLS = [
+    'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js',
+    'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js'
+  ];
+  var pdfState = { template: '', promise: null };
+
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = src;
+      s.async = true;
+      s.onload = resolve;
+      s.onerror = function () { reject(new Error('Could not load ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function preparePdf() {
+    if (pdfState.promise) return pdfState.promise;
+    var libReady = loadScript(PDF_LIB_URLS[0]).catch(function () { return loadScript(PDF_LIB_URLS[1]); });
+    var templateReady = fetch('template.pdf').then(function (res) {
+      if (!res.ok) throw new Error('Could not load the PDF template');
+      return res.arrayBuffer();
+    }).then(function (buf) { return new Uint8Array(buf); });
+    pdfState.promise = Promise.all([libReady, templateReady]).then(function (results) {
+      pdfState.template = results[1];
+      return true;
+    });
+    // If loading fails, forget it so the next attempt starts fresh.
+    pdfState.promise.catch(function () { pdfState.promise = null; });
+    return pdfState.promise;
+  }
+
+  // Resolves with the filled PDF as base64, or rejects (the form is still submitted without it).
+  function makePdf(data) {
+    var timeout = new Promise(function (resolve, reject) {
+      setTimeout(function () { reject(new Error('PDF preparation timed out')); }, 10000);
+    });
+    return Promise.race([preparePdf(), timeout]).then(function () {
+      return fillChildRecordPdf(window.PDFLib, pdfState.template, data, data.png);
+    });
+  }
+
+  // Posts the answers as plain text (a "simple" request, so the browser sends no preflight) with no
+  // cookies, so the visitor's Google sign-in state cannot interfere.
+  function sendToServer(data) {
+    var ctl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 60000);
+    return fetch(ENDPOINT, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      credentials: 'omit',
+      redirect: 'follow',
+      signal: ctl ? ctl.signal : undefined
+    }).then(function (res) {
+      if (!res.ok) throw new Error('Server error ' + res.status);
+      return res.json();
+    }).then(function (json) {
+      if (!json || !json.ok) throw new Error((json && json.error) || 'The form was not saved.');
+      return json;
+    }).then(function (json) { clearTimeout(timer); return json; },
+            function (err) { clearTimeout(timer); throw err; });
+  }
+
+  // ---------- Submit ----------
+  var busy = false;
+  var banner = $('banner');
+  var submitBtn = $('submitBtn');
+
+  function showBanner(text) {
+    banner.textContent = text;
+    banner.hidden = false;
+  }
+
+  function collect() {
+    var data = {};
+    TEXT_IDS.forEach(function (id) { data[id] = val(id); });
+    RADIO_NAMES.forEach(function (name) { data[name] = radio(name); });
+    data.png = exportPng();
+    return data;
+  }
+
+  function setBusy(on, label) {
+    busy = on;
+    submitBtn.disabled = on;
+    submitBtn.textContent = on ? (label || 'Submitting…') : 'Submit';
+  }
+
+  function onSuccess(result) {
+    if (!result || !result.ok) {
+      onFailure({ message: 'The form was not saved.' });
+      return;
+    }
+    setBusy(false);
+    var who = val('signer');
+    $('doneTitle').textContent = who ? 'Thank you, ' + who + '!' : 'Thank you!';
+    $('formView').hidden = true;
+    $('doneView').hidden = false;
+    window.scrollTo(0, 0);
+  }
+
+  function onFailure(err) {
+    setBusy(false);
+    var detail = err && err.message ? ' (' + err.message + ')' : '';
+    showBanner('The form could not be submitted. Check your connection and tap Submit again.' + detail);
+  }
+
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (busy) return;
+    banner.hidden = true;
+    if (!validate()) return;
+    if (!ENDPOINT) {
+      showBanner('This page is not connected to the server yet, so nothing was sent.');
+      return;
+    }
+    setBusy(true, 'Preparing…');
+    var data = collect();
+    // Build the filled PDF first. If that fails for any reason, the form is still submitted
+    // without it, and the Sheet records that the PDF was not generated.
+    makePdf(data)
+      .then(function (pdf) { data.pdf = pdf; })
+      .catch(function (err) {
+        data.pdf = '';
+        data.pdfError = String((err && err.message) || err).slice(0, 150);
+      })
+      .then(function () {
+        setBusy(true, 'Submitting…');
+        sendToServer(data).then(onSuccess, onFailure);
+      });
+  });
+
+  // ---------- Reset / start ----------
+  function today() {
+    var d = new Date();
+    var m = ('0' + (d.getMonth() + 1)).slice(-2);
+    var day = ('0' + d.getDate()).slice(-2);
+    return d.getFullYear() + '-' + m + '-' + day;
+  }
+
+  function resetForm() {
+    $('form').reset();
+    strokes = [];
+    current = null;
+    $('signDate').value = today();
+    RULES.forEach(function (rule) { clearError(rule.name); });
+    banner.hidden = true;
+    $('doneView').hidden = true;
+    $('formView').hidden = false;
+    sizeCanvas();
+    window.scrollTo(0, 0);
+  }
+
+  $('againBtn').addEventListener('click', resetForm);
+
+  $('signDate').value = today();
+  sizeCanvas();
+  preparePdf();
+})();
+</script>
+</body>
+</html>
