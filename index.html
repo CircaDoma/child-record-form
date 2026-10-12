@@ -156,11 +156,7 @@ a { color: var(--blue-30); }
 }
 
 .actions {
-  position: sticky;
-  bottom: 0;
-  margin: 0 calc(var(--margin) * -1);
-  padding: 24px var(--margin) calc(16px + env(safe-area-inset-bottom));
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--white) 30%);
+  padding: 0 0 calc(24px + env(safe-area-inset-bottom));
 }
 .banner {
   margin: 0 0 12px;
@@ -434,7 +430,7 @@ a { color: var(--blue-30); }
   'use strict';
 
   // Paste the Apps Script web app URL (the one ending in /exec) between the quotes.
-  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbzRxbDDlE87rGqxuzgVCmPpvdBsyw8eAIDmeYYCozjNV0Lh1GwXJpg9dJIsfhMLZimjkA/exec';
+  var ENDPOINT = '';
 
   var $ = function (id) { return document.getElementById(id); };
 
