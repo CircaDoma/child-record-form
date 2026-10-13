@@ -2,7 +2,7 @@
   'use strict';
 
   // Paste the Apps Script web app URL (the one ending in /exec) between the quotes.
-  var ENDPOINT = '';
+  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbx4so1jTx2n99k2DIHq0rPVebEijmSEXo_l-v8_lnEy2J4A113NDMxKtXXQXuIFvAMuQg/exec';
 
   // true: the page only works from the link that ends in #k=... (the key is read from the address).
   // The server must have the same key (see setup() in Code.gs). Set to false to turn the key off.
